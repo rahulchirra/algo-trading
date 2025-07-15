@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Markets Masterclass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .market-diagram {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .order-flow {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+        .flow-step {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .flow-step:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+        .flow-connector {
+            position: absolute;
+            height: 4px;
+            background: #4f46e5;
+            transform-origin: left center;
+        }
+        .order-book {
+            font-family: 'Courier New', monospace;
+        }
+        .bid-row {
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        .ask-row {
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        .algo-process {
+            position: relative;
+            height: 400px;
+        }
+        .process-step {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+        .process-step:hover {
+            transform: translateY(-10px);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .market-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .market-card:hover {
+            transform: translateY(-5px) rotateX(5deg);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+        }
+        .participant-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin: 0 auto 10px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-indigo-800 text-white py-8 px-4 shadow-lg">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between">
+                <div class="mb-6 md:mb-0">
+                    <h1 class="text-3xl md:text-4xl font-bold mb-2">Financial Markets Masterclass</h1>
+                    <p class="text-blue-100">Understanding the engines of global finance</p>
+                </div>
+                <div class="flex space-x-4">
+                    <button class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+                        <i class="fas fa-book-open mr-2"></i>Start Learning
+                    </button>
+                    <button class="border border-white px-4 py-2 rounded-lg hover:bg-white hover:text-blue-600 transition">
+                        <i class="fas fa-chart-line mr-2"></i>Market Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="container mx-auto px-4 py-6">
+        <div class="flex overflow-x-auto pb-2 scrollbar-hide">
+            <button onclick="openTab(event, 'market-structure')" class="tab-button flex-shrink-0 px-6 py-3 mr-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition active">
+                <i class="fas fa-sitemap mr-2"></i>Market Structure
+            </button>
+            <button onclick="openTab(event, 'order-mechanics')" class="tab-button flex-shrink-0 px-6 py-3 mr-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition">
+                <i class="fas fa-exchange-alt mr-2"></i>Order Mechanics
+            </button>
+            <button onclick="openTab(event, 'microstructure')" class="tab-button flex-shrink-0 px-6 py-3 mr-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition">
+                <i class="fas fa-microscope mr-2"></i>Microstructure
+            </button>
+            <button onclick="openTab(event, 'algo-trading')" class="tab-button flex-shrink-0 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition">
+                <i class="fas fa-robot mr-2"></i>Algorithmic Trading
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pb-12">
+
+        <!-- Market Structure Tab -->
+        <div id="market-structure" class="tab-content active">
+            <section class="mb-12">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="md:flex">
+                        <div class="p-8">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Understanding Financial Markets</h2>
+                            <p class="text-gray-600 mb-6">Financial markets are platforms where buyers and sellers come together to trade financial instruments like stocks, bonds, currencies, and derivatives. They facilitate the flow of capital between investors and those who need funds.</p>
+                            
+                            <div class="market-diagram p-6 mb-8">
+                                <h3 class="text-xl font-semibold mb-4 text-indigo-700">Financial Market Ecosystem</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                                        <div class="bg-blue-100 text-blue-800 w-12 h-12 rounded-full flex items-center justify-center mb-3 mx-auto">
+                                            <i class="fas fa-chart-line text-xl"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-center mb-2">Capital Allocation</h4>
+                                        <p class="text-sm text-gray-600 text-center">Money flows from investors to businesses that need it to grow</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                                        <div class="bg-green-100 text-green-800 w-12 h-12 rounded-full flex items-center justify-center mb-3 mx-auto">
+                                            <i class="fas fa-tags text-xl"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-center mb-2">Price Discovery</h4>
+                                        <p class="text-sm text-gray-600 text-center">Determines fair value of assets through supply and demand</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                                        <div class="bg-purple-100 text-purple-800 w-12 h-12 rounded-full flex items-center justify-center mb-3 mx-auto">
+                                            <i class="fas fa-tint text-xl"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-center mb-2">Liquidity</h4>
+                                        <p class="text-sm text-gray-600 text-center">Allows quick conversion of investments into cash</p>
+                                    </div>
+                                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                                        <div class="bg-red-100 text-red-800 w-12 h-12 rounded-full flex items-center justify-center mb-3 mx-auto">
+                                            <i class="fas fa-shield-alt text-xl"></i>
+                                        </div>
+                                        <h4 class="font-semibold text-center mb-2">Risk Management</h4>
+                                        <p class="text-sm text-gray-600 text-center">Provides tools to protect against financial risks</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Advantages</h3>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check-circle text-sm"></i>
+                                            </span>
+                                            <span>Enable economic growth by connecting capital with productive uses</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check-circle text-sm"></i>
+                                            </span>
+                                            <span>Provide investment opportunities for individuals to grow wealth</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check-circle text-sm"></i>
+                                            </span>
+                                            <span>Offer liquidity, allowing quick conversion of assets to cash</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Limitations/Risks</h3>
+                                    <ul class="space-y-3">
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation-triangle text-sm"></i>
+                                            </span>
+                                            <span>Market volatility can lead to significant losses</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation-triangle text-sm"></i>
+                                            </span>
+                                            <span>Requires knowledge and expertise to navigate effectively</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation-triangle text-sm"></i>
+                                            </span>
+                                            <span>Subject to manipulation and fraud in some cases</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Types of Financial Markets</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Stock Market Card -->
+                    <div class="market-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+                        <div class="bg-blue-600 p-4 text-white">
+                            <i class="fas fa-chart-bar text-2xl mb-2"></i>
+                            <h3 class="font-bold text-xl">Stock Markets</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4">Markets where shares of publicly traded companies are bought and sold.</p>
+                            <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-blue-800 mb-2">Example:</h4>
+                                <p class="text-sm">Buying 10 shares of Apple at $150 each gives you ownership in Apple Inc. If the stock rises to $170, your investment grows to $1,700.</p>
+                            </div>
+                            <div class="flex items-center text-sm text-blue-600 font-medium">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <span>Ownership in companies</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Forex Market Card -->
+                    <div class="market-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+                        <div class="bg-green-600 p-4 text-white">
+                            <i class="fas fa-globe text-2xl mb-2"></i>
+                            <h3 class="font-bold text-xl">Forex Markets</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4">The global marketplace for trading national currencies against one another.</p>
+                            <div class="bg-green-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-green-800 mb-2">Example:</h4>
+                                <p class="text-sm">An American company selling in Japan converts Yen to Dollars to pay employees through the forex market.</p>
+                            </div>
+                            <div class="flex items-center text-sm text-green-600 font-medium">
+                                <i class="fas fa-exchange-alt mr-2"></i>
+                                <span>Currency exchange</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Crypto Market Card -->
+                    <div class="market-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+                        <div class="bg-purple-600 p-4 text-white">
+                            <i class="fas fa-coins text-2xl mb-2"></i>
+                            <h3 class="font-bold text-xl">Cryptocurrency</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4">Digital marketplaces where cryptocurrencies like Bitcoin are traded 24/7.</p>
+                            <div class="bg-purple-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-purple-800 mb-2">Example:</h4>
+                                <p class="text-sm">Buying 0.1 Bitcoin at $30,000. If Bitcoin rises to $40,000, your investment grows to $4,000.</p>
+                            </div>
+                            <div class="flex items-center text-sm text-purple-600 font-medium">
+                                <i class="fas fa-lock mr-2"></i>
+                                <span>Blockchain-based</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Derivatives Market Card -->
+                    <div class="market-card bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
+                        <div class="bg-red-600 p-4 text-white">
+                            <i class="fas fa-project-diagram text-2xl mb-2"></i>
+                            <h3 class="font-bold text-xl">Derivatives</h3>
+                        </div>
+                        <div class="p-6">
+                            <p class="text-gray-600 mb-4">Markets for instruments whose value derives from underlying assets.</p>
+                            <div class="bg-red-50 p-4 rounded-lg mb-4">
+                                <h4 class="font-semibold text-red-800 mb-2">Example:</h4>
+                                <p class="text-sm">A wheat farmer sells futures contracts at $5/bushel to guarantee price, protecting against potential price drops.</p>
+                            </div>
+                            <div class="flex items-center text-sm text-red-600 font-medium">
+                                <i class="fas fa-shield-alt mr-2"></i>
+                                <span>Risk management</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Order Mechanics Tab -->
+        <div id="order-mechanics" class="tab-content">
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Order Types, Market Participants, and Trading Mechanics</h2>
+                
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="md:flex">
+                        <div class="p-8 w-full">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Order Types Explained</h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <!-- Market Order -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-blue-100 text-blue-800 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-bolt"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Market Order</h4>
+                                    </div>
+                                    <p class="text-gray-600 mb-3">Buy/sell immediately at best available price</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="text-sm font-medium text-gray-700">Example: "Buy 100 shares of Microsoft now at current price"</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Limit Order -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-green-400 transition">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-green-100 text-green-800 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-bullseye"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Limit Order</h4>
+                                    </div>
+                                    <p class="text-gray-600 mb-3">Buy/sell only at specified price or better</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="text-sm font-medium text-gray-700">Example: "Buy Tesla only if price drops to $200 or lower"</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stop Order -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-red-400 transition">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-red-100 text-red-800 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-stop-circle"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Stop Order</h4>
+                                    </div>
+                                    <p class="text-gray-600 mb-3">Becomes market order once specified price is reached</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="text-sm font-medium text-gray-700">Example: "If Apple falls to $140, sell immediately to limit losses"</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Stop-Limit Order -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-purple-400 transition">
+                                    <div class="flex items-center mb-3">
+                                        <div class="bg-purple-100 text-purple-800 p-2 rounded-lg mr-3">
+                                            <i class="fas fa-filter"></i>
+                                        </div>
+                                        <h4 class="font-bold text-lg">Stop-Limit Order</h4>
+                                    </div>
+                                    <p class="text-gray-600 mb-3">Triggers at stop price but executes only at limit price or better</p>
+                                    <div class="bg-gray-50 p-3 rounded">
+                                        <p class="text-sm font-medium text-gray-700">Example: "If Tesla hits $250, sell only if I can get at least $248"</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Market Participants</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+                                <div class="text-center">
+                                    <div class="participant-icon bg-blue-100 text-blue-600">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <h4 class="font-medium">Retail Traders</h4>
+                                    <p class="text-xs text-gray-600">Individuals trading personal money</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="participant-icon bg-green-100 text-green-600">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <h4 class="font-medium">Institutions</h4>
+                                    <p class="text-xs text-gray-600">Large organizations trading billions</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="participant-icon bg-yellow-100 text-yellow-600">
+                                        <i class="fas fa-hand-holding-usd"></i>
+                                    </div>
+                                    <h4 class="font-medium">Market Makers</h4>
+                                    <p class="text-xs text-gray-600">Provide liquidity and profit from spreads</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="participant-icon bg-purple-100 text-purple-600">
+                                        <i class="fas fa-bullhorn"></i>
+                                    </div>
+                                    <h4 class="font-medium">Brokers</h4>
+                                    <p class="text-xs text-gray-600">Execute trades on behalf of clients</p>
+                                </div>
+                                <div class="text-center">
+                                    <div class="participant-icon bg-red-100 text-red-600">
+                                        <i class="fas fa-gavel"></i>
+                                    </div>
+                                    <h4 class="font-medium">Regulators</h4>
+                                    <p class="text-xs text-gray-600">Ensure fair and orderly markets</p>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Trading Mechanics: How a Trade Happens</h3>
+                            <div class="order-flow relative mb-8">
+                                <div class="flow-step bg-blue-600" style="top: 50px; left: 20px;">
+                                    <div>1</div>
+                                    <div class="absolute -bottom-8 text-xs font-medium text-center w-full">Order Placement</div>
+                                </div>
+                                <div class="flow-step bg-green-600" style="top: 50px; left: 120px;">
+                                    <div>2</div>
+                                    <div class="absolute -bottom-8 text-xs font-medium text-center w-full">Order Routing</div>
+                                </div>
+                                <div class="flow-step bg-yellow-600" style="top: 50px; left: 220px;">
+                                    <div>3</div>
+                                    <div class="absolute -bottom-8 text-xs font-medium text-center w-full">Order Matching</div>
+                                </div>
+                                <div class="flow-step bg-purple-600" style="top: 150px; left: 20px;">
+                                    <div>4</div>
+                                    <div class="absolute -bottom-8 text-xs font-medium text-center w-full">Execution</div>
+                                </div>
+                                <div class="flow-step bg-red-600" style="top: 150px; left: 120px;">
+                                    <div>5</div>
+                                    <div class="absolute -bottom-8 text-xs font-medium text-center w-full">Clearing</div>
+                                </div>
+                                <div class="flow-step bg-indigo-600" style="top: 150px; left: 220px;">
+                                    <div>6</div>
+                                    <div class="absolute -bottom-8 text-xs font-medium text-center w-full">Settlement</div>
+                                </div>
+                                
+                                <!-- Connectors -->
+                                <div class="flow-connector" style="width: 40px; top: 90px; left: 100px;"></div>
+                                <div class="flow-connector" style="width: 40px; top: 90px; left: 200px;"></div>
+                                <div class="flow-connector" style="width: 40px; top: 190px; left: 100px; transform: rotate(180deg);"></div>
+                                <div class="flow-connector" style="width: 40px; top: 190px; left: 200px; transform: rotate(180deg);"></div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-gray-800">Advantages</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Multiple order types provide flexibility</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Diverse participants ensure liquidity</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Electronic systems enable fast execution</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-gray-800">Limitations/Risks</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Complex order types can confuse beginners</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>High-frequency traders have advantages</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Technical glitches can disrupt trading</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Microstructure Tab -->
+        <div id="microstructure" class="tab-content">
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Market Microstructure and Price Discovery</h2>
+                
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="md:flex">
+                        <div class="p-8 w-full">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">The Inner Workings of Price Formation</h3>
+                            <p class="text-gray-600 mb-6">Market microstructure examines how markets operate at the most detailed level - how orders are processed, how prices are formed, and how information flows through the market.</p>
+                            
+                            <div class="market-diagram p-6 mb-8">
+                                <h4 class="text-lg font-semibold mb-4 text-indigo-700">Price Discovery Process</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                                        <div class="bg-blue-100 text-blue-800 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
+                                            <i class="fas fa-info-circle"></i>
+                                        </div>
+                                        <p class="text-xs font-medium">1. Information Arrival</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                                        <div class="bg-green-100 text-green-800 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
+                                            <i class="fas fa-brain"></i>
+                                        </div>
+                                        <p class="text-xs font-medium">2. Trader Interpretation</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                                        <div class="bg-yellow-100 text-yellow-800 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </div>
+                                        <p class="text-xs font-medium">3. Order Flow</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                                        <div class="bg-purple-100 text-purple-800 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <p class="text-xs font-medium">4. Price Adjustment</p>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-lg shadow-sm text-center">
+                                        <div class="bg-red-100 text-red-800 w-10 h-10 rounded-full flex items-center justify-center mb-2 mx-auto">
+                                            <i class="fas fa-balance-scale"></i>
+                                        </div>
+                                        <p class="text-xs font-medium">5. New Equilibrium</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Key Concepts</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <!-- Bid-Ask Spread -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition">
+                                    <h4 class="font-bold text-lg mb-3 text-blue-700">Bid-Ask Spread</h4>
+                                    <p class="text-gray-600 mb-3">Difference between highest buy price (bid) and lowest sell price (ask).</p>
+                                    <div class="bg-blue-50 p-3 rounded">
+                                        <div class="flex justify-between mb-1">
+                                            <span class="text-sm font-medium text-red-600">Ask: $100.05</span>
+                                            <span class="text-sm font-medium text-green-600">Bid: $100.00</span>
+                                        </div>
+                                        <div class="h-4 bg-gradient-to-r from-green-500 to-red-500 rounded-full"></div>
+                                        <p class="text-xs text-center mt-1 font-medium">Spread: $0.05</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Order Book -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-green-400 transition">
+                                    <h4 class="font-bold text-lg mb-3 text-green-700">Order Book</h4>
+                                    <p class="text-gray-600 mb-3">Real-time list of all pending buy and sell orders organized by price.</p>
+                                    <div class="order-book bg-gray-50 p-2 rounded text-xs">
+                                        <div class="ask-row p-1 text-right">
+                                            <span>$100.10</span>
+                                            <span class="ml-4">500</span>
+                                        </div>
+                                        <div class="ask-row p-1 text-right">
+                                            <span>$100.05</span>
+                                            <span class="ml-4">300</span>
+                                        </div>
+                                        <div class="ask-row p-1 text-right">
+                                            <span>$100.03</span>
+                                            <span class="ml-4">200</span>
+                                        </div>
+                                        <div class="border-t border-b border-gray-300 my-1"></div>
+                                        <div class="bid-row p-1">
+                                            <span>$100.00</span>
+                                            <span class="ml-4">400</span>
+                                        </div>
+                                        <div class="bid-row p-1">
+                                            <span>$99.98</span>
+                                            <span class="ml-4">600</span>
+                                        </div>
+                                        <div class="bid-row p-1">
+                                            <span>$99.95</span>
+                                            <span class="ml-4">1000</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Market Depth -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-purple-400 transition">
+                                    <h4 class="font-bold text-lg mb-3 text-purple-700">Market Depth</h4>
+                                    <p class="text-gray-600 mb-3">Ability to sustain large orders without significant price impact.</p>
+                                    <div class="bg-purple-50 p-3 rounded">
+                                        <div class="mb-2">
+                                            <p class="text-xs font-medium mb-1">Deep Market</p>
+                                            <div class="h-2 bg-gradient-to-r from-green-400 to-green-200 rounded-full"></div>
+                                            <p class="text-xs mt-1">10,000 shares within $0.10</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-medium mb-1">Shallow Market</p>
+                                            <div class="h-2 bg-gradient-to-r from-red-400 to-red-200 rounded-full"></div>
+                                            <p class="text-xs mt-1">500 shares within $0.10</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-gray-800">Advantages</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Enables efficient price discovery</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Helps minimize transaction costs</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Provides market transparency</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-gray-800">Limitations/Risks</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Complex for average investors</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Advantages sophisticated players</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Technology arms race increases risks</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Algorithmic Trading Tab -->
+        <div id="algo-trading" class="tab-content">
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Introduction to Algorithmic Trading</h2>
+                
+                <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                    <div class="md:flex">
+                        <div class="p-8 w-full">
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">When Computers Take the Trading Wheel</h3>
+                            <p class="text-gray-600 mb-6">Algorithmic trading uses computer programs that follow defined rules to automatically execute trades at speeds and frequencies impossible for human traders.</p>
+                            
+                            <div class="algo-process relative mb-8">
+                                <div class="process-step bg-blue-600" style="top: 20px; left: 20px;">
+                                    <i class="fas fa-lightbulb text-2xl mb-2"></i>
+                                    <p class="text-sm">Strategy Development</p>
+                                </div>
+                                <div class="process-step bg-green-600" style="top: 20px; left: 160px;">
+                                    <i class="fas fa-code text-2xl mb-2"></i>
+                                    <p class="text-sm">Programming</p>
+                                </div>
+                                <div class="process-step bg-yellow-600" style="top: 20px; left: 300px;">
+                                    <i class="fas fa-database text-2xl mb-2"></i>
+                                    <p class="text-sm">Data Feed</p>
+                                </div>
+                                <div class="process-step bg-purple-600" style="top: 160px; left: 20px;">
+                                    <i class="fas fa-bell text-2xl mb-2"></i>
+                                    <p class="text-sm">Signal Generation</p>
+                                </div>
+                                <div class="process-step bg-red-600" style="top: 160px; left: 160px;">
+                                    <i class="fas fa-bolt text-2xl mb-2"></i>
+                                    <p class="text-sm">Automatic Execution</p>
+                                </div>
+                                <div class="process-step bg-indigo-600" style="top: 160px; left: 300px;">
+                                    <i class="fas fa-shield-alt text-2xl mb-2"></i>
+                                    <p class="text-sm">Risk Management</p>
+                                </div>
+                                
+                                <!-- Connectors -->
+                                <div class="flow-connector" style="width: 40px; top: 80px; left: 80px; transform: rotate(90deg);"></div>
+                                <div class="flow-connector" style="width: 40px; top: 80px; left: 220px; transform: rotate(90deg);"></div>
+                                <div class="flow-connector" style="width: 40px; top: 220px; left: 80px; transform: rotate(90deg);"></div>
+                                <div class="flow-connector" style="width: 40px; top: 220px; left: 220px; transform: rotate(90deg);"></div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Real-World Examples</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition">
+                                    <h4 class="font-bold text-lg mb-2 text-blue-700">Pairs Trading</h4>
+                                    <p class="text-gray-600 mb-3">Algorithm monitors related stocks like Coca-Cola and Pepsi.</p>
+                                    <div class="bg-blue-50 p-3 rounded text-sm">
+                                        <p class="font-medium mb-1">When Coke rises 5% but Pepsi only rises 2%:</p>
+                                        <ul class="list-disc pl-5">
+                                            <li>Sells Coke</li>
+                                            <li>Buys Pepsi</li>
+                                            <li>Profits when prices converge</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="border border-gray-200 rounded-lg p-4 hover:border-green-400 transition">
+                                    <h4 class="font-bold text-lg mb-2 text-green-700">Market Making</h4>
+                                    <p class="text-gray-600 mb-3">Algorithm continuously quotes buy and sell prices.</p>
+                                    <div class="bg-green-50 p-3 rounded text-sm">
+                                        <p class="font-medium mb-1">Operations:</p>
+                                        <ul class="list-disc pl-5">
+                                            <li>Adjusts prices based on conditions</li>
+                                            <li>Executes thousands of trades/sec</li>
+                                            <li>Profits from tiny spreads × volume</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-xl font-semibold mb-4 text-gray-800">Where Algorithmic Trading is Used</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                                <div class="bg-gray-100 p-3 rounded-lg text-center">
+                                    <i class="fas fa-university text-2xl text-blue-600 mb-2"></i>
+                                    <p class="text-sm font-medium">Investment Banks</p>
+                                </div>
+                                <div class="bg-gray-100 p-3 rounded-lg text-center">
+                                    <i class="fas fa-chart-pie text-2xl text-green-600 mb-2"></i>
+                                    <p class="text-sm font-medium">Hedge Funds</p>
+                                </div>
+                                <div class="bg-gray-100 p-3 rounded-lg text-center">
+                                    <i class="fas fa-trademark text-2xl text-yellow-600 mb-2"></i>
+                                    <p class="text-sm font-medium">Prop Trading</p>
+                                </div>
+                                <div class="bg-gray-100 p-3 rounded-lg text-center">
+                                    <i class="fas fa-coins text-2xl text-purple-600 mb-2"></i>
+                                    <p class="text-sm font-medium">Crypto Markets</p>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-gray-800">Advantages</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Microsecond execution speed</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Eliminates human emotion</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-green-100 text-green-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-check text-xs"></i>
+                                            </span>
+                                            <span>Can backtest on historical data</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-3 text-gray-800">Limitations/Risks</h4>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>System failures can cause major losses</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Can contribute to flash crashes</span>
+                                        </li>
+                                        <li class="flex items-start">
+                                            <span class="bg-red-100 text-red-800 rounded-full p-1 mr-3">
+                                                <i class="fas fa-exclamation text-xs"></i>
+                                            </span>
+                                            <span>Black swan events can disrupt algorithms</span>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 px-4">
+        <div class="container mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Financial Markets</h3>
+                    <p class="text-gray-400 text-sm">Comprehensive guide to understanding how global financial markets operate, from basic concepts to advanced trading strategies.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Market Basics</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Trading Strategies</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Risk Management</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Regulatory Framework</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Resources</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Glossary</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Case Studies</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Research Papers</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Market Data</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="bg-gray-700 hover:bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="bg-gray-700 hover:bg-blue-800 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                        <a href="#" class="bg-gray-700 hover:bg-red-600 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                        <a href="#" class="bg-gray-700 hover:bg-gray-600 w-10 h-10 rounded-full flex items-center justify-center transition">
+                            <i class="fab fa-github"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400 text-sm">Subscribe to our newsletter for updates</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>© 2023 Financial Markets Masterclass. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function openTab(evt, tabName) {
+            // Hide all tab content
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.getElementsByClassName("tab-button");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("bg-indigo-600", "text-white");
+                tabButtons[i].classList.add("bg-gray-200", "text-gray-700");
+            }
+            
+            // Show the current tab and add active class to the button
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.remove("bg-gray-200", "text-gray-700");
+            evt.currentTarget.classList.add("bg-indigo-600", "text-white");
+        }
+    </script>
+</body>
+</html>
